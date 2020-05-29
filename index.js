@@ -1,8 +1,10 @@
+"use strict";
 const ivm = require("isolated-vm");
 const Constants = require("./Constants");
 const fetch = require("node-fetch");
 const { promises: { readFile } } = require("fs");
 
+//eslint-disable-next-line no-unused-vars
 module.exports = async function (ctx, bot, code, { id, name, data, flags }, commandData) {
     const isolate = new ivm.Isolate();
     const context = await isolate.createContext();
@@ -21,7 +23,7 @@ module.exports = async function (ctx, bot, code, { id, name, data, flags }, comm
                     copy: true
                 }
             });
-        }`, [ fetch ], { arguments: { reference: true }});
+        }`, [ fetch ], { arguments: { reference: true } });
     }
 
     await context.evalClosure(`global.__makeAPIRequest = function(...args) {
@@ -33,7 +35,7 @@ module.exports = async function (ctx, bot, code, { id, name, data, flags }, comm
                 copy: true
             }
         })
-    }`, [ (...args) => bot.requestHandler.request(...args) ], { arguments: { reference: true }});
+    }`, [ (...args) => bot.requestHandler.request(...args) ], { arguments: { reference: true } });
     await context.global.delete("global");
     const mod = await isolate.compileModule(code, {
         filename: `tt.bot/${id}.esm.js`
@@ -45,7 +47,7 @@ module.exports = async function (ctx, bot, code, { id, name, data, flags }, comm
             const file = await readFile(`${__dirname}/${path}`, { encoding: "utf-8" });
             return isolate.compileModule(file, {
                 filename: `tt.bot/${path}`
-            })
+            });
         }
         throw new Error("Module not found. Are you sure you have the correct permissions?");
     });
@@ -60,4 +62,4 @@ module.exports = async function (ctx, bot, code, { id, name, data, flags }, comm
     }
     context.release();
     isolate.dispose();
-}
+};
