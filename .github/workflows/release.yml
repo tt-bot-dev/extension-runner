@@ -34,7 +34,10 @@ jobs:
         run: npm install
         env:
             CI: true
-      - name: Set packag
+      - name: Set up GitHub Package Registry
+        uses: actions/setup-node@v1
+        with:
+          registry-url: https://npm.pkg.github.com/
       - name: Publish package
         run: npm publish
         env:
