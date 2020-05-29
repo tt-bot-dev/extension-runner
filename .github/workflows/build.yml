@@ -39,21 +39,8 @@ jobs:
       run: npm install
       env:
         CI: true
-    - name: Set up the environment
-      run:
-        chmod +x -R ./travis
     - name: Run the tests
-      run: ./travis/test.sh
+      run: npx eslint .
       env:
         CI: true
       if: github.actor != 'tt-bot' && github.actor != 'github-actions'
-    - name: Fix linting issues
-      run: ./travis/fixlint.sh
-      env:
-        CURRENT_BRANCH: ${{ github.ref }}
-        CURRENT_COMMIT: ${{ github.sha }}
-        COMMIT_AUTHOR: ${{ github.actor }}
-        GIT_ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        CI: true
-        CURRENT_REPO: ${{ github.repository }}
-      if: github.event_name != 'pull_request' && failure()
