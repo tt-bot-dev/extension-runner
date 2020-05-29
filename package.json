@@ -25,9 +25,6 @@
     "isolated-vm": "github:laverdet/isolated-vm",
     "node-fetch": "^2.6.0"
   },
-  "publishConfig": {
-    "registry": "https://npm.pkg.github.com/"
-  },
   "devDependencies": {
     "@tt-bot-dev/eslint-config": "^1.0.3"
   }
