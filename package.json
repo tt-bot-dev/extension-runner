@@ -26,7 +26,7 @@
     "node-fetch": "^2.6.0"
   },
   "publishConfig": {
-    "registry": "https://npm.pkg.github.com/"
+    "registry": "https://npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}"
   },
   "devDependencies": {
     "@tt-bot-dev/eslint-config": "^1.0.3"

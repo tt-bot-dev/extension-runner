@@ -34,6 +34,7 @@ jobs:
         run: npm install
         env:
             CI: true
+      - name: Set packag
       - name: Publish package
         run: npm publish
         env:
