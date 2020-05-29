@@ -1,0 +1,31 @@
+{
+  "name": "@tt-bot-dev/extension-runner",
+  "version": "0.0.1",
+  "description": "A sandbox for tt.bot's extensions",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tt-bot-dev/extension-runner.git"
+  },
+  "keywords": [
+    "extensions",
+    "discord",
+    "api"
+  ],
+  "author": "TTtie <me@tttie.cz>",
+  "license": "AGPL-3.0-or-later",
+  "bugs": {
+    "url": "https://github.com/tt-bot-dev/extension-runner/issues"
+  },
+  "homepage": "https://github.com/tt-bot-dev/extension-runner#readme",
+  "dependencies": {
+    "isolated-vm": "github:laverdet/isolated-vm",
+    "node-fetch": "^2.6.0"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/"
+  }
+}
