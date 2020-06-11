@@ -34,7 +34,7 @@ module.exports = async function (ctx, bot, code, ext, commandData) {
         })
     }`, [ bot.messageAwaiter, (ctx, check, timeout) => 
         bot.messageAwaiter.waitForMessage(ctx, ctx => check.applySync(undefined, [ ctx ], { reference: true }),
-        timeout) ], { arguments: { reference: true }})
+            timeout) ], { arguments: { reference: true } });
 
     await context.global.set("log", console.log.bind(console), {
         reference: true
@@ -50,7 +50,7 @@ module.exports = async function (ctx, bot, code, ext, commandData) {
                 }
             });
         }`, [ fetch ], { arguments: { reference: true } });
-    };
+    }
     
     await context.global.delete("global");
     await privilegedContext.global.delete("global");

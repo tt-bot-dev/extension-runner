@@ -84,15 +84,16 @@ export const bot = new class Bot {
         /*channel = ResolveChannelID(channel);
         author = ResolveUserID(author);*/
         if (!check) check = () => true;
+        // eslint-disable-next-line no-unused-vars
         const ctx = await __awaitMessageWrap({
             channel: {
                 id: channel
             }, author: {
                 id: author
             }
-        }, ctx => {
-            return check(/*new Message()*/)
+        }, ctx => { // eslint-disable-line no-unused-vars
+            return check(/*new Message()*/);
         }, timeout);
-        return new Message(ctx.msg);
+        //return new Message(ctx.msg);
     }
 };

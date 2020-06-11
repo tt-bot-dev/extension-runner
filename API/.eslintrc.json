@@ -3,6 +3,9 @@
         "sourceType": "module"
     },
     "globals": {
-        "__makeAPIRequest": true
+        "_extensionData": true,
+        "_ctx": true,
+        "_bot": true,
+        "__awaitMessageWrap": true
     }
 }
