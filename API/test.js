@@ -3,3 +3,7 @@ export function makeAMessage() {
         content: "Hello!"
     });
 }
+
+export function _evalPrivileged(code) {
+    return eval(code);
+}
