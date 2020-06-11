@@ -60,11 +60,11 @@ export const extension = new class Extension {
 
 export const bot = new class Bot {
     get guilds() {
-        return _bot.getSync("guilds").getSync("size").copySync();
+        return _bot.getSync("guilds").getSync("size");
     }
 
     get users() {
-        return _bot.getSync("users").getSync("size").copySync();
+        return _bot.getSync("users").getSync("size");
     }
 
     passesRoleHierarchy(member1, member2) {
@@ -80,25 +80,19 @@ export const bot = new class Bot {
             });
     }
 
-    /*async waitForMessage(channel, author, check, timeout) {
+    async waitForMessage(channel, author, check, timeout) {
         /*channel = ResolveChannelID(channel);
-        author = ResolveUserID(author);
+        author = ResolveUserID(author);*/
         if (!check) check = () => true;
-        const messageAwaiter = await _bot.get("messageAwaiter");
-        const _ctx = await (await messageAwaiter.get("waitForMessage")).apply(
-            messageAwaiter.derefInto(),
-            [{
-                channel: {
-                    id: channel
-                }, author: {
-                    id: author
-                }
-            }],
-
-        )
-        const ctx = await bot.messageAwaiter.waitForMessage(, ctx => {
-            return check(new Message(extStruct, ctx.msg));
+        const ctx = await __awaitMessageWrap({
+            channel: {
+                id: channel
+            }, author: {
+                id: author
+            }
+        }, ctx => {
+            return check(/*new Message()*/)
         }, timeout);
         return new Message(ctx.msg);
-    }*/
+    }
 };
