@@ -3,6 +3,7 @@ const ivm = require("isolated-vm");
 const Constants = require("./Constants");
 const fetch = require("node-fetch");
 const { promises: { readFile } } = require("fs");
+const { join: resolvePath } = require("path");
 const isolate = new ivm.Isolate();
 
 //eslint-disable-next-line no-unused-vars
@@ -58,14 +59,17 @@ module.exports = async function (ctx, bot, code, ext, commandData) {
     });
     await mod.instantiate(context, async function resolve(name) {
         if (name.startsWith("tt.bot/")) {
-            let path = name.replace(/^tt\.bot\//, "API/");
+            let path = name.replace(/^tt\.bot\//, "");
+            path = resolvePath(__dirname, "API", path);
             if (!path.endsWith(".js")) path += ".js";
-            const file = await readFile(`${__dirname}/${path}`, { encoding: "utf-8" });
-            const pm = await isolate.compileModule(file, {
-                filename: `tt.bot/${path}`
-            });
-            await pm.instantiate(privilegedContext, resolve);
-            return pm;
+            if (path.startsWith(__dirname)) {
+                const file = await readFile(`${__dirname}/${path}`, { encoding: "utf-8" });
+                const pm = await isolate.compileModule(file, {
+                    filename: `tt.bot/${path}`
+                });
+                await pm.instantiate(privilegedContext, resolve);
+                return pm;
+            }
         }
         throw new Error("Module not found. Are you sure you have the correct permissions?");
     });
