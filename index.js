@@ -60,7 +60,7 @@ module.exports = async function (ctx, bot, code, ext, commandData) {
     } else {
         isolate = isolatesByExtensions[ext.id];
         if (isolate.isDisposed) {
-            isolate = new ivm.Isolate();
+            isolate = isolatesByExtensions[ext.id] = new ivm.Isolate();
         }
     }
     const context = await isolate.createContext();
