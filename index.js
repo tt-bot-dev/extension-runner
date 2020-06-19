@@ -114,7 +114,7 @@ module.exports = async function (ctx, bot, code, ext, commandData) {
                 copy: true
             }
         }),
-            timeout)], { arguments: { reference: true } });
+        timeout)], { arguments: { reference: true } });
 
     context.global.setIgnored("log", console.log.bind(console), {
         reference: true
@@ -136,7 +136,7 @@ module.exports = async function (ctx, bot, code, ext, commandData) {
     }
 
     context.global.deleteIgnored("global");
-    privilegedContext.global.deleteIgnored("global")
+    privilegedContext.global.deleteIgnored("global");
     const compiledModules = {};
 
     await Promise.all(Object.keys(modules).map(async k => {

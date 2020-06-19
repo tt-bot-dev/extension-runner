@@ -6,7 +6,8 @@
         "_extensionData": true,
         "_ctx": true,
         "_bot": true,
-        "__awaitMessageWrap": true
+        "__awaitMessageWrap": true,
+        "__arrayAction": true
     },
     "parser": "babel-eslint"
 }
