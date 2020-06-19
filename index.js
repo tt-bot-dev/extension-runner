@@ -76,14 +76,7 @@ module.exports = async function (ctx, bot, code, ext, commandData) {
     await privilegedContext.global.set("_extensionData", ext, {
         reference: true
     });
-    await privilegedContext.global.set("_mainObjectKeys", (...args) => console.log(...args) || Object.keys(...args), {
-        reference: true
-    });
-    await privilegedContext.global.set("_toJSON", obj => {
-        return JSON.parse(JSON.stringify(obj.toJSON(Object.keys(obj))));
-    }, {
-        reference: true
-    });
+
     await privilegedContext.evalClosure(`global.__awaitMessageWrap = function(ctx, check, timeout) {
         return $1.apply($0, [ ctx, check, timeout ], {
             result: {
