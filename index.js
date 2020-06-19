@@ -135,5 +135,6 @@ module.exports = async function (ctx, bot, code, ext, commandData) {
         e = err;
     }
     context.release();
+    privilegedContext.release();
     return e;
 };
