@@ -1,3 +1,5 @@
+import { Message } from "tt.bot/message.js";
+
 export const extension = new class Extension {
     constructor() {
         this.store = _extensionData.getSync("data", { reference: true }).copySync();
@@ -97,3 +99,7 @@ export const bot = new class Bot {
         //return new Message(ctx.msg);
     }
 };
+
+export const message = new Message(_ctx.getSync("msg", {
+    reference: true
+}));

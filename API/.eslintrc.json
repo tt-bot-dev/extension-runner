@@ -7,5 +7,6 @@
         "_ctx": true,
         "_bot": true,
         "__awaitMessageWrap": true
-    }
+    },
+    "parser": "babel-eslint"
 }

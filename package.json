@@ -26,6 +26,11 @@
     "node-fetch": "^2.6.0"
   },
   "devDependencies": {
-    "@tt-bot-dev/eslint-config": "^1.0.3"
+    "@tt-bot-dev/eslint-config": "^1.0.3",
+    "babel-eslint": "^10.1.0",
+    "eslint": "^7.3.0"
+  },
+  "peerDependencies": {
+    "sosamba": "^1.0.1"
   }
 }
