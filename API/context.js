@@ -1,4 +1,4 @@
-import { Message } from "tt.bot/message.js";
+import Message from "tt.bot/internal/message.js";
 
 export const extension = new class Extension {
     constructor() {

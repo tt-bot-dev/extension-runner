@@ -22,6 +22,7 @@ async function loadDir(path = API_DIR) {
         if (dirEntry.isDirectory()) {
             await loadDir(`${path}/${dirEntry.name}`);
         } else {
+            if (!dirEntry.name.endsWith(".js")) continue;
             const modulePath = join("tt.bot", relative(API_DIR, path)).replace(/\\/g, "/");
             modules[`${modulePath}/${dirEntry.name}`] = await readFile(`${path}/${dirEntry.name}`, { encoding: "utf-8" });
         }
@@ -29,55 +30,70 @@ async function loadDir(path = API_DIR) {
 }
 const _loadFiles = loadDir();
 
-
-
+let loadedFiles = false;
 //eslint-disable-next-line no-unused-vars
 module.exports = async function (ctx, bot, code, ext, commandData) {
     // ext = { id, name, data, flags };
-    await _loadFiles;
+    if (!loadedFiles) {
+        await _loadFiles;
+        loadedFiles = true;
+    }
 
     let isolate;
-    function resolve(moduleName, privilegedContext) {
-        return async function (name) {
-            if (name.startsWith("tt.bot/")) {
-                if (name.startsWith("tt.bot/internal") && !moduleName.startsWith("tt.bot/")) throw new Error("Requested an internal module from an external module");
-                if (!name.endsWith(".js")) name += ".js";
-                if (Object.prototype.hasOwnProperty.call(modules, name)) {
-                    const moduleCode = modules[name];
-                    const pm = await isolate.compileModule(moduleCode, {
-                        filename: name
-                    });
-                    await pm.instantiate(privilegedContext, resolve(name, privilegedContext));
-                    return pm;
-                }
-            }
-            throw new Error("Module not found. Are you sure you have the correct permissions?");
-        };
-    }
-    
+
     if (!Object.prototype.hasOwnProperty.call(isolatesByExtensions, ext.id)) {
-        isolate = new ivm.Isolate();
+        isolate = isolatesByExtensions[ext.id] = new ivm.Isolate();
     } else {
         isolate = isolatesByExtensions[ext.id];
         if (isolate.isDisposed) {
-            isolate = isolatesByExtensions[ext.id] = new ivm.Isolate();
+            isolate = new ivm.Isolate();
         }
     }
-    const context = await isolate.createContext();
-    const privilegedContext = await isolate.createContext();
-    await context.global.set("global", context.global.derefInto());
-    await privilegedContext.global.set("global", privilegedContext.global.derefInto());
-    await privilegedContext.global.set("_ctx", ctx, {
+    const [mod, context, privilegedContext] = await Promise.all([isolate.compileModule(code, {
+        filename: `tt.bot/${ext.id}.esm.js`
+    }), isolate.createContext(), isolate.createContext()]);
+    context.global.setIgnored("global", context.global.derefInto());
+    privilegedContext.global.setIgnored("global", privilegedContext.global.derefInto());
+    privilegedContext.global.setIgnored("_ctx", ctx, {
         reference: true,
     });
-    await privilegedContext.global.set("_bot", bot, {
+    privilegedContext.global.setIgnored("_bot", bot, {
         reference: true
     });
-    await privilegedContext.global.set("_extensionData", ext, {
+    privilegedContext.global.setIgnored("_extensionData", ext, {
         reference: true
     });
 
-    await privilegedContext.evalClosure(`global.__awaitMessageWrap = function(ctx, check, timeout) {
+    privilegedContext.evalClosureIgnored(`global.__arrayAction = function (arrayRef, action, predicate, ...args) {
+        return $0.applySync(undefined, [arrayRef, action, predicate, ...args], {
+            arguments: {
+                reference: true
+            },
+            result: {
+                copy: true
+            }
+        });
+    }`, [(ref, action, predicate, ...args) => {
+        return Array.prototype[action.copySync()].apply(ref.copySync().deref(), [(...args) => {
+            return predicate.applySync(undefined, args, {
+                arguments: {
+                    reference: true
+                },
+                result: {
+                    reference: true
+                }
+            });
+        }, ...args.map(a => a.copySync())]).map(o => o.derefInto());
+    }], {
+        arguments: {
+            reference: true
+        },
+        result: {
+            copy: true
+        }
+    });
+
+    privilegedContext.evalClosureIgnored(`global.__awaitMessageWrap = function(ctx, check, timeout) {
         return $1.apply($0, [ ctx, check, timeout ], {
             result: {
                 promise: true,
@@ -89,17 +105,25 @@ module.exports = async function (ctx, bot, code, ext, commandData) {
             }
         })
     }`, [bot.messageAwaiter, (ctx, check, timeout) =>
-        bot.messageAwaiter.waitForMessage(ctx, ctx => check.applySync(undefined, [ctx], { reference: true }),
+        bot.messageAwaiter.waitForMessage(ctx, ctx => check.apply(undefined, [ctx], {
+            arguments: {
+                reference: true
+            },
+            result: {
+                promise: true,
+                copy: true
+            }
+        }),
             timeout)], { arguments: { reference: true } });
-    
-    await context.global.set("log", console.log.bind(console), {
+
+    context.global.setIgnored("log", console.log.bind(console), {
         reference: true
     });
-    await privilegedContext.global.set("log", console.log.bind(console), {
+    privilegedContext.global.setIgnored("log", console.log.bind(console), {
         reference: true
     });
     if (ext.flags & Constants.ExtensionFlags.httpRequests) {
-        await context.evalClosure(`global.fetch = function(...args) {
+        context.evalClosureIgnored(`global.fetch = function(...args) {
             return $0.apply(undefined, args, {
                 result: {
                     promise: true
@@ -111,12 +135,40 @@ module.exports = async function (ctx, bot, code, ext, commandData) {
         }`, [fetch], { arguments: { reference: true } });
     }
 
-    await context.global.delete("global");
-    await privilegedContext.global.delete("global");
-    const mod = await isolate.compileModule(code, {
-        filename: `tt.bot/${ext.id}.esm.js`
+    context.global.deleteIgnored("global");
+    privilegedContext.global.deleteIgnored("global")
+    const compiledModules = {};
+
+    await Promise.all(Object.keys(modules).map(async k => {
+        const mod = await isolate.compileModule(modules[k], {
+            filename: k,
+            produceCachedData: true
+        });
+        return compiledModules[k] = mod;
+    }));
+    const entrypointModule = compiledModules["tt.bot/context.js"];
+    await entrypointModule.instantiate(privilegedContext, async function (name) {
+        if (name.startsWith("tt.bot/")) {
+            if (!name.endsWith(".js")) name += ".js";
+            if (Object.prototype.hasOwnProperty.call(compiledModules, name)) {
+                return compiledModules[name];
+            }
+        }
+        throw new Error("Module not found. Are you sure you have the correct permissions?");
     });
-    await mod.instantiate(context, resolve(`${ext.id}.esm.js`, privilegedContext));
+
+    await mod.instantiate(context, async function (name) {
+        if (name.startsWith("tt.bot/")) {
+            if (name.startsWith("tt.bot/internal")) {
+                throw new Error("Requested an internal module from an external module");
+            }
+            if (!name.endsWith(".js")) name += ".js";
+            if (Object.prototype.hasOwnProperty.call(compiledModules, name)) {
+                return compiledModules[name];
+            }
+        }
+        throw new Error("Module not found. Are you sure you have the correct permissions?");
+    });
 
     let e;
     try {
