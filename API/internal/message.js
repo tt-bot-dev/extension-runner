@@ -18,6 +18,7 @@
  */
 import { proxyReference, interceptReason } from "tt.bot/internal/util.js";
 import User from "tt.bot/internal/user.js";
+import { toChannel } from "tt.bot/internal/channel.js";
 
 export default class Message {
     #reference;
@@ -26,8 +27,7 @@ export default class Message {
         this.type = refProxy.type.copySync();
         this.timestamp = refProxy.timestamp.copySync();
         this.id = refProxy.id.copySync();
-        // N/A
-        this.channel = null;
+        this.channel = toChannel(refProxy.channel.toRef);
         this.content = refProxy.content.copySync();
         this.hit = refProxy.hit.copySync();
         this.guildID = refProxy.guildID.copySync();

@@ -18,15 +18,15 @@
  */
 
 export function proxyReference(ref, that = undefined) {
-    const methods = ["deref", "derefInto", "copy", "copySync", "typeof", "toFunc", "toRef"];
-    const toFunc = () => (...args) => {
+    const methods = ["deref", "derefInto", "copy", "copySync", "typeof", "toFunc", "toRef", "toSyncFunc"];
+    const toFunc = (promise = true) => (...args) => {
         const out = ref.applySync(that ? that.derefInto() : ref.derefInto(), args, {
             arguments: {
                 copy: true
             },
             result: {
                 reference: true,
-                promise: true
+                promise
             }
         });
 
@@ -44,6 +44,7 @@ export function proxyReference(ref, that = undefined) {
         get(_, name) {
             if (methods.includes(name)) {
                 if (name === "toFunc") return toFunc();
+                if (name === "toSyncFunc") return toFunc(false);
                 if (name === "toRef") return ref;
                 return ref[name].bind(ref);
             } else {
