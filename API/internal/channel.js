@@ -1,14 +1,14 @@
 import { proxyReference, interceptReason } from "tt.bot/internal/util.js";
 
 export const toChannel = ref => {
-    const refProxy = this.#reference = proxyReference(ref);
+    const refProxy = proxyReference(ref);
     const type = refProxy.type.copySync();
 
     switch (type) {
-        case 0:
-        default: {
-            return new Channel(ref);
-        }
+    case 0:
+    default: {
+        return new Channel(ref);
+    }
     }
 };
 
@@ -65,5 +65,4 @@ export class Channel {
             .then(() => true)
             .catch(() => false);
     }
-
 }

@@ -52,7 +52,7 @@ export default class User {
         return this.#reference.avatarURL.copySync();
     }
     dynamicAvatarURL(format, size) {
-        return this.#reference.dynamicAvatarURL.toSyncFunc(format, size)
+        return this.#reference.dynamicAvatarURL.toSyncFunc(format, size);
     }
 
     async createMessage(content, file) {
