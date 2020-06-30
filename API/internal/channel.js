@@ -198,3 +198,17 @@ export class TextChannel extends Channel {
             .catch(() => false);
     }
 }
+
+export class NewsChannel extends Channel {
+    #reference;
+    constructor(ref) {
+        super(ref);
+        this.#reference = proxyReference(ref);
+    }
+
+    crosspostMessage(message) {
+        return this.#reference.crosspostMessage.toFunc(message.id || message)
+            .then(() => true)
+            .catch(() => false);
+    }
+}
