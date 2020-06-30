@@ -7,15 +7,15 @@ export const toChannel = ref => {
     const type = refProxy.type.copySync();
 
     switch (type) {
-        case 0: {
-            return new TextChannel(ref);
-        }
-        case 5: {
-            return new NewsChannel(ref);
-        }
-        default: {
-            return new Channel(ref);
-        }
+    case 0: {
+        return new TextChannel(ref);
+    }
+    case 5: {
+        return new NewsChannel(ref);
+    }
+    default: {
+        return new Channel(ref);
+    }
     }
 };
 
@@ -77,6 +77,7 @@ export class Channel {
 export class TextChannel extends Channel {
     #reference;
     constructor(ref) {
+        super(ref);
         const refProxy = this.#reference = proxyReference(ref);
         this.messages = null;
         this.lastMessageID = refProxy.lastMessageID.copySync();
