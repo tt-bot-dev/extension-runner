@@ -7,7 +7,12 @@ export const toChannel = ref => {
     const type = refProxy.type.copySync();
 
     switch (type) {
-        case 0:
+        case 0: {
+            return new TextChannel(ref);
+        }
+        case 5: {
+            return new NewsChannel(ref);
+        }
         default: {
             return new Channel(ref);
         }
