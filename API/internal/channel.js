@@ -10,6 +10,9 @@ export const toChannel = ref => {
     case 0: {
         return new TextChannel(ref);
     }
+    case 2: {
+        return new VoiceChannel(ref);
+    }
     case 5: {
         return new NewsChannel(ref);
     }
@@ -215,6 +218,28 @@ export class NewsChannel extends Channel {
     crosspostMessage(message) {
         return this.#reference.crosspostMessage.toFunc(message.id || message)
             .then(() => true)
+            .catch(() => false);
+    }
+}
+
+export class VoiceChannel extends Channel {
+    #reference;
+    constructor(ref) {
+        super(ref);
+        const refProxy = this.#reference = proxyReference(ref);
+        this.bitrate = refProxy.bitrate.copySync();
+        this.userLimit = refProxy.userLimit.copySync();
+
+    }
+
+    getInvites() {
+        return this.#reference.getInvites.toFunc().then(() => [])
+            .catch(() => false);
+    }
+
+    createInvite(options, reason) {
+        return this.#reference.createInvite.toFunc(options, interceptReason(reason))
+            .then(() => null)
             .catch(() => false);
     }
 }
