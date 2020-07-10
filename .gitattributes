@@ -16,5 +16,6 @@
 # along with tt.bot.  If not, see <http://www.gnu.org/licenses/>.
 
 * text eol=crlf
+LICENSE text eol=lf
 *.sh text eol=lf
 *.png binary
