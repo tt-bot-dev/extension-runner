@@ -13,6 +13,9 @@ export const toChannel = ref => {
     case 2: {
         return new VoiceChannel(ref);
     }
+    case 4: {
+        return new CategoryChannel(ref);
+    }
     case 5: {
         return new NewsChannel(ref);
     }
@@ -244,4 +247,6 @@ export class VoiceChannel extends Channel {
     }
 }
 
-export class CategoryChannel extends Channel {}
+export class CategoryChannel extends Channel {
+    channels = null;
+}
