@@ -229,7 +229,7 @@ export class VoiceChannel extends Channel {
         const refProxy = this.#reference = proxyReference(ref);
         this.bitrate = refProxy.bitrate.copySync();
         this.userLimit = refProxy.userLimit.copySync();
-
+        this.voiceMembers = null;
     }
 
     getInvites() {
@@ -243,3 +243,5 @@ export class VoiceChannel extends Channel {
             .catch(() => false);
     }
 }
+
+export class CategoryChannel extends Channel {}

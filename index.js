@@ -161,7 +161,7 @@ module.exports = async function (ctx, bot, code, ext, commandData) {
     await Promise.all(Object.keys(modules).map(async k => {
         const mod = await isolate.compileModule(modules[k], {
             filename: k,
-            produceCachedData: true
+            // produceCachedData: true
         });
         return compiledModules[k] = mod;
     }));
