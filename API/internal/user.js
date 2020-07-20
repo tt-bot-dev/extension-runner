@@ -16,10 +16,11 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with tt.bot's extension runner.  If not, see <http://www.gnu.org/licenses/>.
  */
-import { proxyReference } from "tt.bot/internal/util.js";
+import { proxyReference, interceptReason } from "tt.bot/internal/util.js";
 import Message from "tt.bot/internal/message.js";
+//import Guild from "tt.bot/internal/guild.js";
 
-export default class User {
+export class User {
     #reference;
     constructor(ref) {
         const refProxy = this.#reference = proxyReference(ref);
@@ -58,5 +59,63 @@ export default class User {
     async createMessage(content, file) {
         const dmChannel = await this.#reference.getDMChannel.toFunc();
         return dmChannel.createMessage.toFunc(content, file).then(m => new Message(m.toRef)).catch(() => false);
+    }
+}
+
+export class Member extends User {
+    #reference;
+    constructor(ref) {
+        super(ref.getSync("user", { reference: true }));
+        const refProxy = this.#reference = proxyReference(ref);
+        this.guild = null;
+        this.joinedAt = refProxy.joinedAt.copySync();
+        this.permission = refProxy.permission.toJSON.toSyncFunc(["json"]).copySync();
+        this.premiumSince = refProxy.premiumSince.copySync();
+        this.roles = refProxy.roles.copySync();
+        this.user = new User(refProxy.user.toRef);
+        this.voiceState = refProxy.voiceState.toJSON.toSyncFunc().copySync();
+    }
+
+    addRole(role, reason) {
+        return this.#reference.addRole.toFunc(role.id || role, interceptReason(reason))
+            .then(() => true)
+            .catch(() => false);
+    }
+
+    ban(deleteMessageDays, reason) {
+        return this.#reference.ban.toFunc(deleteMessageDays, interceptReason(reason))
+            .then(() => true)
+            .catch(() => false);
+    }
+
+    edit(options, reason) {
+        return this.#reference.edit.toFunc({
+            roles: options.roles.map(role => role.id || role),
+            nick: options.nick,
+            mute: options.mute,
+            deaf: options.deaf,
+            channelID: options.channelID.id || options.channelID
+        }, interceptReason(reason))
+            .then(() => true)
+            .catch(() => false);
+    }
+
+    kick(reason) {
+        return this.#reference.kick.toFunc(interceptReason(reason))
+            .then(() => true)
+            .catch(() => false);
+    }
+
+
+    removeRole(role, reason) {
+        return this.#reference.removeRole.toFunc(role.id || role, interceptReason(reason))
+            .then(() => true)
+            .catch(() => false);
+    }
+    
+    unban(reason) {
+        return this.#reference.unban.toFunc(interceptReason(reason))
+            .then(() => true)
+            .catch(() => false);
     }
 }

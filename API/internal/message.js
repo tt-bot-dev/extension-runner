@@ -17,7 +17,7 @@
  * along with tt.bot's extension runner.  If not, see <http://www.gnu.org/licenses/>.
  */
 import { proxyReference, interceptReason } from "tt.bot/internal/util.js";
-import User from "tt.bot/internal/user.js";
+import { User, Member } from "tt.bot/internal/user.js";
 import { toChannel } from "tt.bot/internal/channel.js";
 
 export default class Message {
@@ -34,7 +34,7 @@ export default class Message {
         this.webhookID = refProxy.webhookID.copySync();
         this.messageReference = refProxy.messageReference.copySync();
         this.author = new User(refProxy.author.toRef);
-        this.member = null;
+        this.member = new Member(refProxy.member.toRef);
         this.mentionEveryone = refProxy.mentionEveryone.copySync();
         this.mentions = __arrayAction(refProxy.mentions.toRef, "map", user => new User(user));
         this.roleMentions = refProxy.roleMentions.copySync();

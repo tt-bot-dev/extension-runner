@@ -16,6 +16,8 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with tt.bot's extension runner.  If not, see <http://www.gnu.org/licenses/>.
  */
+
+// TODO: Use proxyReference
 import Message from "tt.bot/internal/message.js";
 
 export const extension = new class Extension {
@@ -121,3 +123,5 @@ export const bot = new class Bot {
 export const message = new Message(_ctx.getSync("msg", {
     reference: true
 }));
+export const channel = message.channel;
+//export const guild = channel.guild;
