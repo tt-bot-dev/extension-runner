@@ -18,7 +18,7 @@ along with tt.bot's extension runner.  If not, see <http://www.gnu.org/licenses/
 -->
 
 # Contributing to tt.bot's extension runner
-Thank you for your interest in contributing to tt.bot's extension runner. We have some rules set in order to keep the code as clean as possible. Some of the rules are enforced automatically through [GitHub Actions](https://github.com/features/actions). <!-- soon to be GitLab CI -->
+Thank you for your interest in contributing to tt.bot's extension runner. We have some rules set in order to keep the code as clean as possible. Some of the rules are enforced automatically through [GitLab CI](https://docs.gitlab.com/ee/ci/).
 
 ## Code style
 We use ESLint along with [our own configuration](https://owo.codes/tt.bot/frameworks/eslint-config) to format our code. To lint the code, run `npx eslint .`.
