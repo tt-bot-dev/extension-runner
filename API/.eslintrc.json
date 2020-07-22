@@ -9,5 +9,6 @@
         "__awaitMessageWrap": true,
         "__arrayAction": true
     },
-    "parser": "babel-eslint"
+    "parser": "babel-eslint",
+    "extends": "@tt-bot-dev"
 }

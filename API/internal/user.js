@@ -18,7 +18,7 @@
  */
 import { proxyReference, interceptReason } from "tt.bot/internal/util.js";
 import Message from "tt.bot/internal/message.js";
-//import Guild from "tt.bot/internal/guild.js";
+import Guild from "tt.bot/internal/guild.js";
 
 export class User {
     #reference;
@@ -67,7 +67,7 @@ export class Member extends User {
     constructor(ref) {
         super(ref.getSync("user", { reference: true }));
         const refProxy = this.#reference = proxyReference(ref);
-        this.guild = null;
+        this.guild = new Guild(refProxy.guild.toRef);
         this.joinedAt = refProxy.joinedAt.copySync();
         this.permission = refProxy.permission.toJSON.toSyncFunc(["json"]).copySync();
         this.premiumSince = refProxy.premiumSince.copySync();
@@ -90,10 +90,8 @@ export class Member extends User {
 
     edit(options, reason) {
         return this.#reference.edit.toFunc({
+            ...options,
             roles: options.roles.map(role => role.id || role),
-            nick: options.nick,
-            mute: options.mute,
-            deaf: options.deaf,
             channelID: options.channelID.id || options.channelID
         }, interceptReason(reason))
             .then(() => true)

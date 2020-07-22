@@ -1,6 +1,7 @@
 import { proxyReference, interceptReason } from "tt.bot/internal/util.js";
 import Message from "tt.bot/internal/message.js";
-import User from "tt.bot/internal/user.js";
+import { User } from "tt.bot/internal/user.js";
+import Guild from "tt.bot/internal/guild.js";
 
 export const toChannel = ref => {
     const refProxy = proxyReference(ref);
@@ -31,7 +32,7 @@ export class Channel {
         const refProxy = this.#reference = proxyReference(ref);
         this.type = refProxy.type.copySync();
 
-        this.guild = null;
+        this.guild = new Guild(refProxy.guild.toRef);
         this.name = refProxy.name.copySync();
         this.position = refProxy.position.copySync();
         this.parentID = refProxy.parentID.copySync();
