@@ -49,7 +49,7 @@ export const extension = new class Extension {
 
         const db = await _ctx.get("db");
 
-        (await db.get("updateGuildExtensionStore")).apply(db.derefInto(),
+        await (await db.get("updateGuildExtensionStore")).apply(db.derefInto(),
             [this.store.guildID, this.store.id, JSON.stringify(toSet)],
             {
                 arguments: {
@@ -66,7 +66,7 @@ export const extension = new class Extension {
     async wipeData() {
         if (!this.store) throw new Error("You haven't set up a storage");
         const db = await _ctx.get("db");
-        (await db.get("updateGuildExtensionStore")).apply(db.derefInto(),
+        await (await db.get("updateGuildExtensionStore")).apply(db.derefInto(),
             [this.store.guildID, this.store.id],
             {
                 arguments: {
@@ -82,15 +82,15 @@ export const extension = new class Extension {
 
 export const bot = new class Bot {
     get guilds() {
-        return _bot.getSync("guilds").getSync("size");
+        return _bot.getSync("guilds", { reference: true }).getSync("size", { copy: true });
     }
 
     get users() {
-        return _bot.getSync("users").getSync("size");
+        return _bot.getSync("users", { reference: true }).getSync("size", { copy: true });
     }
 
     passesRoleHierarchy(member1, member2) {
-        return _bot.getSync("passesRoleHierarchy").applySync(_bot.derefInto(),
+        return _bot.getSync("passesRoleHierarchy", { reference: true }).applySync(_bot.derefInto(),
             [JSON.parse(JSON.stringify(member1)), JSON.parse(JSON.stringify(member2))],
             {
                 arguments: {
@@ -124,4 +124,4 @@ export const message = new Message(_ctx.getSync("msg", {
     reference: true
 }));
 export const channel = message.channel;
-//export const guild = channel.guild;
+export const guild = channel.guild;

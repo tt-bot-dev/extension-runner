@@ -56,7 +56,6 @@ export function proxyReference(ref, that = undefined) {
     });
 }
 
-const extensionData = proxyReference(_extensionData);
 export function interceptReason(reason) {
-    return `${extensionData.name.copySync()} (ID: ${extensionData.id.copySync()}): ${reason}`;
+    return `${_extensionData.getSync("name", { copy: true })} (ID: ${extensionData.getSync("id", { copy: true })}): ${reason}`;
 }
