@@ -4,8 +4,7 @@ import { User } from "tt.bot/internal/user.js";
 import Guild from "tt.bot/internal/guild.js";
 
 export const toChannel = ref => {
-    const refProxy = proxyReference(ref);
-    const type = refProxy.type.copySync();
+    const type = ref.getSync("type", { copy: true });
 
     switch (type) {
     case 0: {
