@@ -139,13 +139,13 @@ export class TextChannel extends Channel {
 
     getMessages(limit, before, after, around) {
         return this.#reference.getMessages.toFunc(limit, before, after, around)
-            .then(m => __arrayAction(m.ToRef, "map", m => new Message(m)))
+            .then(m => __arrayAction(m.toRef, "map", m => new Message(m)))
             .catch(() => false);
     }
 
     getPins() {
         return this.#reference.getPins.toFunc()
-            .then(m => __arrayAction(m.ToRef, "map", m => new Message(m)))
+            .then(m => __arrayAction(m.toRef, "map", m => new Message(m)))
             .catch(() => false);
     }
 
