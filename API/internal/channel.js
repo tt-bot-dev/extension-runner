@@ -50,7 +50,10 @@ export class Channel {
     }
 
     edit(options, reason) {
-        return this.#reference.edit.toFunc(options, interceptReason(reason))
+        return this.#reference.edit.toFunc({
+            ...options,
+            parentID: options.parentID && (options.parentID.id || options.parentID)
+        }, interceptReason(reason))
             .then(r => toChannel(r))
             .catch(() => false);
     }

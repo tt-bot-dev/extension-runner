@@ -91,8 +91,8 @@ export class Member extends User {
     edit(options, reason) {
         return this.#reference.edit.toFunc({
             ...options,
-            roles: options.roles.map(role => role.id || role),
-            channelID: options.channelID.id || options.channelID
+            roles: options.roles && options.roles.map(role => role.id || role),
+            channelID: options.channelID && (options.channelID.id || options.channelID)
         }, interceptReason(reason))
             .then(() => true)
             .catch(() => false);

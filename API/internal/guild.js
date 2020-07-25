@@ -202,8 +202,8 @@ export default class Guild {
     editMember(member, options, reason) {
         return this.#reference.editMember.toFunc(member.id || member, {
             ...options,
-            roles: options.roles.map(r => r.id || r),
-            channelID: options.channelID.id || options.channelID
+            roles: options.roles && options.roles.map(r => r.id || r),
+            channelID: options.channelID && (options.channelID.id || options.channelID)
         }, interceptReason(reason))
             .then(() => true)
             .catch(() => false);
@@ -243,10 +243,10 @@ export default class Guild {
     edit(options, reason) {
         return this.#reference.edit.toFunc({
             ...options,
-            systemChannelID: options.systemChannelID.id || options.systemChannelID,
-            rulesChannelID: options.rulesChannelID.id || options.rulesChannelID,
-            publicUpdatesChannelID: options.publicUpdatesChannelID.id || options.publicUpdatesChannelID,
-            afkChannelID: options.afkChannelID.id || options.afkChannelID
+            systemChannelID: options.systemChannelID && (options.systemChannelID.id || options.systemChannelID),
+            rulesChannelID: options.rulesChannelID && (options.rulesChannelID.id || options.rulesChannelID),
+            publicUpdatesChannelID: options.publicUpdatesChannelID && (options.publicUpdatesChannelID.id || options.publicUpdatesChannelID),
+            afkChannelID: options.afkChannelID && (options.afkChannelID.id || options.afkChannelID)
         }, interceptReason(reason));
     }
 
