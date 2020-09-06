@@ -30,6 +30,7 @@ export class User {
         this.avatar = refProxy.avatar.copySync();
         this.bot = refProxy.bot.copySync();
         this.system = refProxy.system.copySync();
+        this.publicFlags = refProxy.publicFlags.copySync();
         this.id = refProxy.id.copySync();
     }
 

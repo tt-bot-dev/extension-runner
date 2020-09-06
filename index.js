@@ -71,8 +71,12 @@ module.exports = async function (ctx, bot, code, ext, commandData) {
     const [mod, context, privilegedContext] = await Promise.all([isolate.compileModule(code, {
         filename: `tt.bot/${ext.id}.esm.js`
     }), isolate.createContext(), isolate.createContext()]);
+
+    // ought to use standard "globalThis" instead of setting "global"
     context.global.setIgnored("global", context.global.derefInto());
     privilegedContext.global.setIgnored("global", privilegedContext.global.derefInto());
+
+
     privilegedContext.global.setIgnored("_ctx", ctx, {
         reference: true,
     });
@@ -111,7 +115,7 @@ module.exports = async function (ctx, bot, code, ext, commandData) {
             copy: true
         }
     });
-
+    // todo: this should be more generic and should be able to pass different functions instead
     privilegedContext.evalClosureIgnored(`global.__awaitMessageWrap = function(ctx, check, timeout) {
         return $1.apply($0, [ ctx, check, timeout ], {
             result: {
