@@ -72,11 +72,6 @@ module.exports = async function (ctx, bot, code, ext, commandData) {
         filename: `tt.bot/${ext.id}.esm.js`
     }), isolate.createContext(), isolate.createContext()]);
 
-    // ought to use standard "globalThis" instead of setting "global"
-    context.global.setIgnored("global", context.global.derefInto());
-    privilegedContext.global.setIgnored("global", privilegedContext.global.derefInto());
-
-
     privilegedContext.global.setIgnored("_ctx", ctx, {
         reference: true,
     });
@@ -87,7 +82,7 @@ module.exports = async function (ctx, bot, code, ext, commandData) {
         reference: true
     });
 
-    privilegedContext.evalClosureIgnored(`global.__arrayAction = function (arrayRef, action, predicate, ...args) {
+    privilegedContext.evalClosureIgnored(`globalThis.__arrayAction = function (arrayRef, action, predicate, ...args) {
         return $0.applySync(undefined, [arrayRef, action, predicate, ...args], {
             arguments: {
                 reference: true
@@ -116,7 +111,7 @@ module.exports = async function (ctx, bot, code, ext, commandData) {
         }
     });
     // todo: this should be more generic and should be able to pass different functions instead
-    privilegedContext.evalClosureIgnored(`global.__awaitMessageWrap = function(ctx, check, timeout) {
+    privilegedContext.evalClosureIgnored(`globalThis.__awaitMessageWrap = function(ctx, check, timeout) {
         return $1.apply($0, [ ctx, check, timeout ], {
             result: {
                 promise: true,
@@ -146,7 +141,7 @@ module.exports = async function (ctx, bot, code, ext, commandData) {
         reference: true
     });
     if (ext.flags & Constants.ExtensionFlags.httpRequests) {
-        context.evalClosureIgnored(`global.fetch = function(...args) {
+        context.evalClosureIgnored(`globalThis.fetch = function(...args) {
             return $0.apply(undefined, args, {
                 result: {
                     promise: true
@@ -158,8 +153,6 @@ module.exports = async function (ctx, bot, code, ext, commandData) {
         }`, [fetch], { arguments: { reference: true } });
     }
 
-    context.global.deleteIgnored("global");
-    privilegedContext.global.deleteIgnored("global");
     const compiledModules = {};
 
     await Promise.all(Object.keys(modules).map(async k => {
