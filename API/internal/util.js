@@ -29,8 +29,8 @@ export function proxyReference(ref, that = undefined) {
                 promise
             }
         });
-
-        return out.then(o => proxyReference(o));
+        if (typeof out.then === "function") return out.then(o => proxyReference(o));
+        return out;
     };
     return new Proxy(ref, {
         deleteProperty(_, name) {

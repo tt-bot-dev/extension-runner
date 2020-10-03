@@ -46,6 +46,34 @@ async function loadDir(path = API_DIR) {
             modules[`${modulePath}/${dirEntry.name}`] = await readFile(`${path}/${dirEntry.name}`, { encoding: "utf-8" });
         }
     }
+
+    const erisModules = ["/lib/util/Collection.js"];
+
+    for (const mod of erisModules) {
+        let fp;
+        try {
+            fp = require.resolve(`${process.cwd()}/node_modules/eris${mod}`);
+            console.debug(fp);
+        } catch {
+            console.error(`[extension-runner] Could not load eris${mod}`);
+            continue;
+        }
+
+        // Lightweight CJS wrapper
+        modules[`eris${mod}`] = `
+            function __loadCJS(exports, require, module, __filename, __dirname) {
+                ${await readFile(fp, { encoding: "utf-8" })}
+            }
+
+            const __module = {
+                exports: {}
+            };
+            const __require = (n) => {
+                throw new Error(\`Cannot find module \${n}\`)
+            }
+            export default __loadCJS(__module.exports, __require, __module, "eris${mod}", "eris")
+        `;
+    }
 }
 const _loadFiles = loadDir();
 
@@ -65,7 +93,7 @@ module.exports = async function (ctx, bot, code, ext, commandData) {
     } else {
         isolate = isolatesByExtensions[ext.id];
         if (isolate.isDisposed) {
-            isolate = new ivm.Isolate();
+            isolate = isolatesByExtensions[ext.id] = new ivm.Isolate();
         }
     }
     const [mod, context, privilegedContext] = await Promise.all([isolate.compileModule(code, {
@@ -111,6 +139,61 @@ module.exports = async function (ctx, bot, code, ext, commandData) {
         }
     });
     // todo: this should be more generic and should be able to pass different functions instead
+    const { result: isAsyncFunction } = await privilegedContext.evalClosure(`const AsyncFunction = (async () => void 0).constructor;
+    return func => func instanceof AsyncFunction;`, [], {
+        result: {
+            reference: true
+        }
+    });
+
+    privilegedContext.evalClosureIgnored(`globalThis.__callFunction = function (ref, that, args, promise = false, copy = true) {
+        log.applySync(undefined, [ "call into __callFunction " ]);
+        const transformedFunc = $0.applySync(null, [ ref.derefInto(), that && that.derefInto() ], {
+            result: {
+                reference: true
+            }
+        });
+        return transformedFunc.applySync(null, args, {
+            result: {
+                promise,
+                reference: true
+            },
+            arguments: {
+                reference: true
+            }
+        })
+    };`, [ (func, that) => (...args) => {
+        const argsTransformed = [];
+        for (let i = 0; i < args.length; i++) {
+            const arg = args[i];
+            if (!(arg instanceof ivm.Reference)) argsTransformed.push(arg);
+            if (arg.typeof === "function") {
+                argsTransformed.push((...args) => {
+                    const isAsync = isAsyncFunction.applySync(null, [ arg.derefInto() ], { result: { copy: true }, arguments: { copy: true } });
+                    if (isAsync) {
+                        return arg.apply(undefined, args, { arguments: { copy: true }, result: { promise: true, copy: true } });
+                    } else {
+                        return arg.applySync(undefined, args, { arguments: { copy: true }, result: { copy: true } });
+                    }
+                });
+            } else {
+                argsTransformed.push(arg.copySync());
+            }
+        }
+        console.log("call into node __callFunction", argsTransformed, args);
+        const out = func.apply(that, argsTransformed);
+        return out;
+    } ], { arguments: { reference: true } });
+    privilegedContext.global.setIgnored("testFunc", async (cb, asyncCb, ...args) => {
+        console.log(cb, asyncCb, ...args);
+        console.log("call into testFunc");
+        console.log(cb("česko je dobrá zem"));
+        console.log(await asyncCb("česko je dobrá zem"));
+        console.log(...args);
+        return true;
+    }, {
+        reference: true
+    });
     privilegedContext.evalClosureIgnored(`globalThis.__awaitMessageWrap = function(ctx, check, timeout) {
         return $1.apply($0, [ ctx, check, timeout ], {
             result: {
@@ -164,7 +247,7 @@ module.exports = async function (ctx, bot, code, ext, commandData) {
     }));
     const entrypointModule = compiledModules["tt.bot/context.js"];
     await entrypointModule.instantiate(privilegedContext, async function (name) {
-        if (name.startsWith("tt.bot/")) {
+        if (name.startsWith("tt.bot/") || name.startsWith("eris/")) {
             if (!name.endsWith(".js")) name += ".js";
             if (Object.prototype.hasOwnProperty.call(compiledModules, name)) {
                 return compiledModules[name];

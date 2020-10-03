@@ -106,7 +106,6 @@ export class TextChannel extends Channel {
     constructor(ref) {
         super(ref);
         const refProxy = this.#reference = proxyReference(ref);
-        this.messages = null;
         this.lastMessageID = refProxy.lastMessageID.copySync();
         this.ratelimitPerUser = refProxy.ratelimitPerUser.copySync();
         this.lastPinTimestamp = refProxy.lastPinTimestamp.copySync();

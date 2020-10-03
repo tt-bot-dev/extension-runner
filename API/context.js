@@ -19,6 +19,7 @@
 
 // TODO: Use proxyReference
 import Message from "tt.bot/internal/message.js";
+import * as test from "tt.bot/test";
 
 export const extension = new class Extension {
     constructor() {
@@ -107,15 +108,15 @@ export const bot = new class Bot {
         author = ResolveUserID(author);*/
         if (!check) check = () => true;
         // eslint-disable-next-line no-unused-vars
-        const ctx = await __awaitMessageWrap({
+        /*const ctx = await __awaitMessageWrap({
             channel: {
                 id: channel
             }, author: {
                 id: author
             }
         }, ctx => { // eslint-disable-line no-unused-vars
-            return check(/*new Message()*/);
-        }, timeout);
+            return check(/*new Message());
+        }, timeout);*/
         //return new Message(ctx.msg);
     }
 };

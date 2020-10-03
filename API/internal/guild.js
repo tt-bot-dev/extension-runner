@@ -65,13 +65,6 @@ export default class Guild {
         this.maxVideoChannelUsers = refProxy.maxVideoChannelUsers.copySync();
     }
 
-    fetchAllMembers(timeout) { // eslint-disable-line no-unused-vars
-        // :thinking: Implement this or not?
-    }
-
-    fetchMembers(options) { // eslint-disable-line no-unused-vars
-        // this as well?
-    }
 
     get iconURL() {
         return this.#reference.iconURL.copySync();
@@ -296,10 +289,6 @@ export default class Guild {
         return this.#reference.getWebhooks.toFunc()
             .then(u => u.copy())
             .catch(() => false);
-    }
-
-    searchMembers(query, limit) { // eslint-disable-line no-unused-vars
-        // Same concerns as fetch(All)Members
     }
 }
 
