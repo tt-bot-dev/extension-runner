@@ -1,5 +1,5 @@
 <!--
-Copyright (C) 2020 tt.bot dev team
+Copyright (C) 2021 tt.bot dev team
  
 This file is part of tt.bot's extension runner.
  
@@ -19,7 +19,6 @@ along with tt.bot's extension runner.  If not, see <http://www.gnu.org/licenses/
 # @tt-bot-dev/extension-runner (tt.bot's extension runner)
 [![Discord][discord shield]][discord invite] [![Add me!][tt.bot add shield]][tt.bot invite]
 [![Build Status][gh shield]][gh]
-[![Donate using Ko-fi](https://www.ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/T6T11LVG2)
 
 @tt-bot-dev/extension-runner is the heart of tt.bot's extensions powered using `isolate-vm`.
 
